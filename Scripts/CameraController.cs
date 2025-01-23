@@ -89,7 +89,7 @@ public partial class CameraController : Camera3D
 		
 		// Zoom Lerping
 
-		if (Mathf.Abs(zoomLerp - zoomDistance) > 0.0001f)
+		if (Mathf.Abs(zoomLerp - zoomDistance) > 0.001f)
 		{
 			GD.Print("LERPING!");
 		

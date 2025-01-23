@@ -1,9 +1,10 @@
-[gd_scene load_steps=16 format=3 uid="uid://c4xo01nkv2lks"]
+[gd_scene load_steps=11 format=3 uid="uid://c4xo01nkv2lks"]
 
 [ext_resource type="Script" path="res://Scripts/CameraController.cs" id="1_o3hk1"]
 [ext_resource type="Shader" path="res://Ground.gdshader" id="1_w5rox"]
 [ext_resource type="Texture2D" uid="uid://bfue5mj25lvrb" path="res://texture_10.png" id="2_c6a04"]
 [ext_resource type="Script" path="res://Scripts/CameraOffset.cs" id="3_u6huq"]
+[ext_resource type="PackedScene" uid="uid://desc0bea355cq" path="res://Prefabs/conveyor_belt.tscn" id="5_jbv5o"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_8pqmw"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -21,42 +22,26 @@ ssao_radius = 0.12
 ssao_intensity = 4.31
 sdfgi_use_occlusion = true
 glow_enabled = true
-fog_enabled = true
+glow_normalized = true
+glow_strength = 0.63
+glow_blend_mode = 0
 fog_mode = 1
-fog_light_color = Color(1, 1, 1, 1)
+fog_light_color = Color(1, 0.904167, 0.75, 1)
 fog_density = 1.0
 fog_depth_curve = 6.49801
 fog_depth_end = 482.0
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gvwsa"]
-albedo_color = Color(1, 0, 0, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_6lftv"]
-material = SubResource("StandardMaterial3D_gvwsa")
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_b8bmv"]
-albedo_color = Color(0, 1, 0.0333333, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_8xi0s"]
-material = SubResource("StandardMaterial3D_b8bmv")
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h60bw"]
-albedo_color = Color(0.116667, 0, 1, 1)
-
-[sub_resource type="SphereMesh" id="SphereMesh_gpb1k"]
-material = SubResource("StandardMaterial3D_h60bw")
-
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_vv2rf"]
 render_priority = 0
 shader = ExtResource("1_w5rox")
-shader_parameter/grid_scale = Vector2(1000, 1000)
+shader_parameter/grid_scale = Vector2(20000, 20000)
 shader_parameter/camera_position = Vector3(0, 0, 0)
 shader_parameter/roughness = 1.3
 shader_parameter/tex = ExtResource("2_c6a04")
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_ja8a7"]
 material = SubResource("ShaderMaterial_vv2rf")
-size = Vector2(1000, 1000)
+size = Vector2(20000, 20000)
 
 [node name="Node3D" type="Node3D"]
 
@@ -65,19 +50,8 @@ environment = SubResource("Environment_mnhii")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.866025, -0.402447, 0.296709, 0, 0.593419, 0.804894, -0.5, 0.697058, -0.513916, 0.000463009, 0.00529313, 0.000267267)
-light_energy = 0.802
+light_color = Color(1, 0.842833, 0.59, 1)
 shadow_enabled = true
-
-[node name="Red" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0, 0)
-mesh = SubResource("SphereMesh_6lftv")
-
-[node name="Green" type="MeshInstance3D" parent="."]
-mesh = SubResource("SphereMesh_8xi0s")
-
-[node name="Blue" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0, 0)
-mesh = SubResource("SphereMesh_gpb1k")
 
 [node name="Ground" type="MeshInstance3D" parent="." node_paths=PackedStringArray("Camera")]
 transform = Transform3D(1, 0, -1.19209e-07, 0, 1, 0, -1.19209e-07, 0, 1, 0.00346245, -3.57628e-07, 8.46386e-05)
@@ -93,3 +67,16 @@ fov = 39.4
 size = 5.0
 script = ExtResource("1_o3hk1")
 RotationPoint = NodePath("..")
+
+[node name="ConveyorBelt" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+OtherConveyorBelt = NodePath("../ConveyorBelt2")
+
+[node name="ConveyorBelt2" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
+OtherConveyorBelt = NodePath("../ConveyorBelt3")
+IsLead = false
+
+[node name="ConveyorBelt3" parent="." instance=ExtResource("5_jbv5o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
+IsLead = false
+IsEnd = true
