@@ -9,12 +9,14 @@ public partial class CameraController : Camera3D
 	
 	
 	private float zoomDistance = 10;
+	private float zoomLerp;
 	private float minZoomDistance = 1.5f;
 	private float maxZoomDistance = 220;
 
 	public override void _Ready()
 	{
-		RotationPoint.RotateY(45);
+		RotationPoint.RotateY(Mathf.DegToRad(-45));
+		zoomLerp = zoomDistance;
 		Zoom(0);
 	}
 
@@ -60,6 +62,17 @@ public partial class CameraController : Camera3D
 		{
 			RotationPoint.RotateY(2 * (float)delta);
 		}
+		
+		if (Input.IsActionJustPressed("zoom_in"))
+		{
+			Zoom(-zoomSpeed * 0.25f);
+			GD.Print("ZOOM IN");
+		}
+		
+		if (Input.IsActionJustPressed("zoom_out"))
+		{
+			Zoom(zoomSpeed * 0.25f);
+		}
 
 		float rotation = RotationPoint.Rotation.Y;
 
@@ -72,17 +85,31 @@ public partial class CameraController : Camera3D
 		RotationPoint.GlobalPosition += moveDir * moveSpeed * (float)delta;
 		
 		LookAt(RotationPoint.GlobalPosition);
+		
+		
+		// Zoom Lerping
+
+		if (Mathf.Abs(zoomLerp - zoomDistance) > 0.0001f)
+		{
+			GD.Print("LERPING!");
+		
+			zoomLerp = Mathf.Lerp(zoomLerp, zoomDistance, 10 * (float)GetProcessDeltaTime());
+		
+			Vector3 forward = Transform.Basis.Z;
+			Vector3 absoluteTranslation = forward * zoomLerp;
+		
+			Transform = new Transform3D(Transform.Basis, absoluteTranslation);
+		}
+		else
+		{
+			zoomLerp = zoomDistance;
+		}
 	}
 
 	private void Zoom(float deltaDirection)
 	{
 		zoomDistance += deltaDirection * zoomSpeed * (float)GetProcessDeltaTime();
 		zoomDistance = Mathf.Clamp(zoomDistance, minZoomDistance, maxZoomDistance);
-
-		Vector3 forward = Transform.Basis.Z;
-		Vector3 absoluteTranslation = forward * zoomDistance;
-		
-		Transform = new Transform3D(Transform.Basis, absoluteTranslation);
 	}
 
 	private void Rotate(float deltaRotation)

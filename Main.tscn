@@ -1,10 +1,9 @@
-[gd_scene load_steps=17 format=3 uid="uid://c4xo01nkv2lks"]
+[gd_scene load_steps=16 format=3 uid="uid://c4xo01nkv2lks"]
 
 [ext_resource type="Script" path="res://Scripts/CameraController.cs" id="1_o3hk1"]
 [ext_resource type="Shader" path="res://Ground.gdshader" id="1_w5rox"]
 [ext_resource type="Texture2D" uid="uid://bfue5mj25lvrb" path="res://texture_10.png" id="2_c6a04"]
 [ext_resource type="Script" path="res://Scripts/CameraOffset.cs" id="3_u6huq"]
-[ext_resource type="PackedScene" uid="uid://dxbm8lbtjuhp4" path="res://materials test.fbx" id="5_5xlrj"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_8pqmw"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -94,6 +93,3 @@ fov = 39.4
 size = 5.0
 script = ExtResource("1_o3hk1")
 RotationPoint = NodePath("..")
-
-[node name="materials test" parent="." instance=ExtResource("5_5xlrj")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.175098, 4.98853, -1.89045)
