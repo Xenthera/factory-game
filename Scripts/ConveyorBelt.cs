@@ -15,14 +15,16 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 	[Export] private bool IsEnd = false;
 	
 	private List<(int itemID, Node3D itemVisual)> _itemQueueFIFO = new List<(int itemID, Node3D itemVisual)>();
+	
+	
 
 	private Vector3 _startPosition = new(0, 0.1f, 0);
 	private Vector3 _endPosition = new(1, 0.1f, 0);
 
-	private float _conveyorSpeed = 1f;
+	private float _conveyorSpeed =5f;
 
 	private float _defaultItemSize = 0.2f;
-	private float _conveyorPadding = 0.2f;
+	private float _conveyorPadding = 0.05f;
 	private float _conveyorSpacing;
 	
 	// Called when the node enters the scene tree for the first time.
@@ -35,6 +37,19 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+
+		Vector3 local = new Vector3(0.5f, 0.5f, 0);
+		
+		Color c = Colors.Cyan;
+
+		for (int i = 0; i < _itemQueueFIFO.Count; i++)
+		{
+			var item = _itemQueueFIFO[i];
+			DebugDraw3D.DrawSphere(GlobalTransform.Origin + GlobalTransform.Basis * (item.itemVisual.Position + new Vector3(_defaultItemSize / 2, _defaultItemSize / 2, 0f)), 0.3f);
+		}
+		
+		DebugDraw3D.DrawBox(GlobalTransform.Origin + GlobalTransform.Basis * local, Quaternion.Identity, Vector3.One, _itemQueueFIFO.Any() ? c : Colors.Red, true);
+		
 		if (Input.IsActionJustPressed("add") && IsLead)
 		{
 			AddItem(0);
@@ -56,20 +71,31 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 			float speed = _conveyorSpeed * (float)delta;
 			Vector3 newPosition = currentPosition + direction * speed;
 			
-			// Clamp position so items do not overshoot the conveyor's endpoint
-			if(newPosition.X - _endPosition.X > 0)
+			// Check if there's a valid IItemCarrier to put a new item in when the item reaches the end of the belt
+			// Otherwise Clamp position so items do not overshoot the conveyor's endpoint
+
+			if (_carrier != null)
 			{
-				if (_carrier != null)
+				if (newPosition.X - _endPosition.X > 0)
 				{
-					bool success = _carrier.AddItem(0);
-					if (success)
+					if (_carrier != null)
 					{
-						RemoveItem();
+						bool success = _carrier.AddItem(0);
+						if (success)
+						{
+							RemoveItem();
+						}
 					}
 				}
-				newPosition = _endPosition;
 			}
-			
+			else
+			{
+				if (newPosition.X - (_endPosition.X - (_conveyorSpacing / 2)) > 0)
+				{
+					newPosition.X = (_endPosition.X - (_conveyorSpacing / 2));
+				}
+			}
+
 			// Check spacing: If the next item ahead is stopped or too close 
 			if (i < _itemQueueFIFO.Count - 1)  // There must be another item ahead
 			{
@@ -91,7 +117,6 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 					if (dist != null && dist < _conveyorSpacing)
 					{
 						float offset = dist.Value - _conveyorSpacing; // should be negative
-						GD.Print(offset);
 						
 						Vector3 nextItemPos = new Vector3(_endPosition.X + offset, newPosition.Y, newPosition.Z);
 						
@@ -112,7 +137,6 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 	{
 		if (_itemQueueFIFO.Any())
 		{
-			GD.Print(_itemQueueFIFO[0].itemVisual.Position.X);
 			if (_itemQueueFIFO[0].itemVisual.Position.X < _conveyorSpacing)
 			{
 				return false;

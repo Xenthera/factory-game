@@ -76,7 +76,113 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
 OtherConveyorBelt = NodePath("../ConveyorBelt3")
 IsLead = false
 
-[node name="ConveyorBelt3" parent="." instance=ExtResource("5_jbv5o")]
+[node name="ConveyorBelt3" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
+OtherConveyorBelt = NodePath("../ConveyorBelt4")
+IsLead = false
+
+[node name="ConveyorBelt4" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 0)
+OtherConveyorBelt = NodePath("../ConveyorBelt5")
+IsLead = false
+
+[node name="ConveyorBelt5" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
+OtherConveyorBelt = NodePath("../ConveyorBelt6")
+IsLead = false
+
+[node name="ConveyorBelt6" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0)
+OtherConveyorBelt = NodePath("../ConveyorBelt7")
 IsLead = false
 IsEnd = true
+
+[node name="ConveyorBelt7" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 6.5, 0, 0.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt8")
+IsLead = false
+
+[node name="ConveyorBelt8" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 6.5, 0, 1.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt9")
+IsLead = false
+
+[node name="ConveyorBelt9" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 6.5, 0, 2.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt10")
+IsLead = false
+
+[node name="ConveyorBelt10" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 6.5, 0, 3.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt11")
+IsLead = false
+
+[node name="ConveyorBelt11" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 6.5, 0, 4.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt12")
+IsLead = false
+
+[node name="ConveyorBelt12" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 6.5, 0, 5.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt13")
+IsLead = false
+
+[node name="ConveyorBelt13" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 6, 0, 7)
+OtherConveyorBelt = NodePath("../ConveyorBelt14")
+IsLead = false
+
+[node name="ConveyorBelt14" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 5, 0, 7)
+OtherConveyorBelt = NodePath("../ConveyorBelt15")
+IsLead = false
+
+[node name="ConveyorBelt15" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 4, 0, 7)
+OtherConveyorBelt = NodePath("../ConveyorBelt16")
+IsLead = false
+
+[node name="ConveyorBelt16" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 3, 0, 7)
+OtherConveyorBelt = NodePath("../ConveyorBelt17")
+IsLead = false
+
+[node name="ConveyorBelt17" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 2, 0, 7)
+OtherConveyorBelt = NodePath("../ConveyorBelt18")
+IsLead = false
+
+[node name="ConveyorBelt18" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1, 0, 7)
+OtherConveyorBelt = NodePath("../ConveyorBelt19")
+IsLead = false
+
+[node name="ConveyorBelt19" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 6.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt20")
+IsLead = false
+
+[node name="ConveyorBelt20" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 5.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt21")
+IsLead = false
+
+[node name="ConveyorBelt21" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 4.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt22")
+IsLead = false
+
+[node name="ConveyorBelt22" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 3.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt23")
+IsLead = false
+
+[node name="ConveyorBelt23" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 2.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt24")
+IsLead = false
+
+[node name="ConveyorBelt24" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 1.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt")
+IsLead = false

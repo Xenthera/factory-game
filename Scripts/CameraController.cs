@@ -66,7 +66,6 @@ public partial class CameraController : Camera3D
 		if (Input.IsActionJustPressed("zoom_in"))
 		{
 			Zoom(-zoomSpeed * 0.25f);
-			GD.Print("ZOOM IN");
 		}
 		
 		if (Input.IsActionJustPressed("zoom_out"))
@@ -91,7 +90,6 @@ public partial class CameraController : Camera3D
 
 		if (Mathf.Abs(zoomLerp - zoomDistance) > 0.001f)
 		{
-			GD.Print("LERPING!");
 		
 			zoomLerp = Mathf.Lerp(zoomLerp, zoomDistance, 10 * (float)GetProcessDeltaTime());
 		
