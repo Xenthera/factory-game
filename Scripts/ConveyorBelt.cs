@@ -131,8 +131,13 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 						_visualItems[i].QueueFree();
 						_visualItems[i] = null;
 					}
-					_visualItems[i + 1] = _visualItems[i];
-					_visualItems[i] = null;
+
+					if (i < _visualItems.Length - 1)
+					{
+						_visualItems[i + 1] = _visualItems[i];
+						_visualItems[i] = null;
+					}
+					
 				}
 				
 				
