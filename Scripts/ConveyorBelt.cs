@@ -7,54 +7,91 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 {
 	[Export] private PackedScene _itemPrefab;
 
-	[Export] private ConveyorBelt OtherConveyorBelt;
+	[Export] public ConveyorBelt OtherConveyorBelt;
+	[Export] public ConveyorBelt PreviousConveyorBelt;
 	//will be removed when grid manager passes IItemCarriers
-	private IItemCarrier _carrier;
+	private IItemCarrier _nextCarrier;
+
+	private ConveyorBelt _previousConveyor;
 	//temp remove
 	[Export] private bool IsLead = false;
 	[Export] private bool IsEnd = false;
 	
-	private List<(int itemID, Node3D itemVisual)> _itemQueueFIFO = new List<(int itemID, Node3D itemVisual)>();
-	
+
+	private int[] _itemContainers;
+	private Vector3[] _itemPositions;
+	private Node3D[] _visualItems;
+	private bool[] _shiftedThisTick;
 	
 
 	private Vector3 _startPosition = new(0, 0.1f, 0);
 	private Vector3 _endPosition = new(1, 0.1f, 0);
 
-	private float _conveyorSpeed =5f;
+	private float _conveyorSpeed = 5f;
 
 	private float _defaultItemSize = 0.2f;
 	private float _conveyorPadding = 0.05f;
 	private float _conveyorSpacing;
+
+	private float _t = 0;
+
+
+	
+	
+	Dictionary<int, Color> _itemColors = new Dictionary<int, Color>();
+	private Random random = new Random();
 	
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		_conveyorSpacing = _defaultItemSize + _conveyorPadding;
-		_carrier = OtherConveyorBelt as IItemCarrier;
+		_nextCarrier = OtherConveyorBelt as IItemCarrier;
+
+		_itemContainers = new int[5];
+		_itemPositions = new Vector3[5];
+		_visualItems = new Node3D[5];
+		_shiftedThisTick = new bool[5];
+		
+		for (int i = 0; i < _itemPositions.Length; i++)
+		{
+			_itemPositions[i] = _startPosition + new Vector3(i * (1f / _itemPositions.Length), 0f, 0f);
+		}
+		
+		
+		_itemColors.Add(1, Colors.Lavender);
+		_itemColors.Add(2, Colors.Green);
+		_itemColors.Add(3, Colors.Blue);
+		_itemColors.Add(4, Colors.Yellow);
+		_itemColors.Add(5, Colors.Purple);
+		_itemColors.Add(6, Colors.Orange);
+		_itemColors.Add(7, Colors.Cyan);
+		_itemColors.Add(8, Colors.Magenta);
+		_itemColors.Add(9, Colors.Brown);
+		_itemColors.Add(10, Colors.Gray);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-
-		Vector3 local = new Vector3(0.5f, 0.5f, 0);
-		
 		Color c = Colors.Cyan;
 
-		for (int i = 0; i < _itemQueueFIFO.Count; i++)
+		for (int i = 0; i < _itemPositions.Length; i++)
 		{
-			var item = _itemQueueFIFO[i];
-			DebugDraw3D.DrawSphere(GlobalTransform.Origin + GlobalTransform.Basis * (item.itemVisual.Position + new Vector3(_defaultItemSize / 2, _defaultItemSize / 2, 0f)), 0.3f);
+			if (_itemContainers[i] != 0)
+			{
+				Vector3 local = _itemPositions[i] + new Vector3(0f, 0.1f, 0);
+				DebugDraw3D.DrawBox(GlobalTransform.Origin + GlobalTransform.Basis * local, GlobalBasis.GetRotationQuaternion(), Vector3.One * 0.15f, _itemColors[_itemContainers[i]], true);
+			}
+			
 		}
-		
-		DebugDraw3D.DrawBox(GlobalTransform.Origin + GlobalTransform.Basis * local, Quaternion.Identity, Vector3.One, _itemQueueFIFO.Any() ? c : Colors.Red, true);
-		
-		if (Input.IsActionJustPressed("add") && IsLead)
+
+		if (Input.IsActionPressed("add") && IsLead)
 		{
-			AddItem(0);
+			var randomIndex = random.Next(_itemColors.Count);
+			var randomKey = new List<int>(_itemColors.Keys)[randomIndex];
+			AddItem(randomKey);
 		}
-		if (Input.IsActionJustPressed("remove") && IsEnd)
+		if (Input.IsActionPressed("remove") && IsEnd)
 		{
 			for (int i = 0; i < 3; i++)
 			{
@@ -62,116 +99,137 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 			}
 		}
 
-		for (int i = 0; i < _itemQueueFIFO.Count; i++)
+		for (int i = 0; i < _visualItems.Length; i++)
 		{
-			(int _, Node3D itemVisual) = _itemQueueFIFO[i];
-			Vector3 currentPosition = itemVisual.Position;
-			
-			Vector3 direction = (_endPosition - currentPosition).Normalized();
-			float speed = _conveyorSpeed * (float)delta;
-			Vector3 newPosition = currentPosition + direction * speed;
-			
-			// Check if there's a valid IItemCarrier to put a new item in when the item reaches the end of the belt
-			// Otherwise Clamp position so items do not overshoot the conveyor's endpoint
-
-			if (_carrier != null)
+			if (_shiftedThisTick[i])
 			{
-				if (newPosition.X - _endPosition.X > 0)
+				if (_visualItems[i] == null) continue;
+
+				float xPos = (1f / _itemContainers.Length) * i;
+				float nextXPos = (1f / _itemContainers.Length) * (i + 1);
+				
+				_visualItems[i].Position =
+					new Vector3(
+						Mathf.Lerp(xPos,
+							nextXPos, _t), _visualItems[i].Position.Y, _visualItems[i].Position.Z);
+			}
+		}
+		
+		
+		
+
+		_t += (float)delta * 6;
+		if (_t >= 1.0f)
+		{
+			for (int i = _visualItems.Length - 1; i >= 0; i--)
+			{
+				
+				if (_shiftedThisTick[i])
 				{
-					if (_carrier != null)
+					if (i == _visualItems.Length - 1)
 					{
-						bool success = _carrier.AddItem(0);
-						if (success)
-						{
-							RemoveItem();
-						}
+						_visualItems[i].QueueFree();
+						_visualItems[i] = null;
 					}
+					_visualItems[i + 1] = _visualItems[i];
+					_visualItems[i] = null;
+				}
+				
+				
+			}
+		}
+		
+		
+
+	}
+
+	private void updateDiscretePositions()
+	{
+		for (int i = _itemContainers.Length - 1; i >= 0; i--)
+		{
+			if (i == _itemContainers.Length - 1) //last position on conveyor
+			{
+				if (_itemContainers[i] == 0 || _nextCarrier == null) continue;
+				if (_nextCarrier.AddItem(_itemContainers[i]))
+				{
+					_itemContainers[i] = 0;
+					_shiftedThisTick[i] = true;
+
 				}
 			}
 			else
 			{
-				if (newPosition.X - (_endPosition.X - (_conveyorSpacing / 2)) > 0)
+				if (_itemContainers[i] != 0 && _itemContainers[i + 1] == 0)
 				{
-					newPosition.X = (_endPosition.X - (_conveyorSpacing / 2));
+					_itemContainers[i + 1] = _itemContainers[i];
+					_itemContainers[i] = 0;
+					_shiftedThisTick[i] = true;
 				}
 			}
-
-			// Check spacing: If the next item ahead is stopped or too close 
-			if (i < _itemQueueFIFO.Count - 1)  // There must be another item ahead
-			{
-				(int _, Node3D nextItemVisual) = _itemQueueFIFO[i + 1];  // Next item in queue
-				Vector3 nextItemPos = nextItemVisual.Position;
-
-				// Check if the next item is within spacing distance and is close to stopping
-				if (newPosition.DistanceTo(nextItemPos) < _conveyorSpacing)
-				{
-					newPosition = nextItemPos - (direction * _conveyorSpacing);
-				}
-			}
-			
-			if(_carrier is ConveyorBelt otherConveyorBelt)
-			{
-				
-					float? dist = otherConveyorBelt.GetLastItemDistanceFromBeginningOfConveyor();
-					
-					if (dist != null && dist < _conveyorSpacing)
-					{
-						float offset = dist.Value - _conveyorSpacing; // should be negative
-						
-						Vector3 nextItemPos = new Vector3(_endPosition.X + offset, newPosition.Y, newPosition.Z);
-						
-						if(newPosition.X - nextItemPos.X > 0)
-						{
-							newPosition = nextItemPos;
-						}
-					}
-				
-			}
-			
-			itemVisual.Position = newPosition;
-			
 		}
+		
+	}
+
+	private void spawnVisualEntities()
+	{
+		
+		if (_shiftedThisTick[0]) // New Item this tick
+		{
+			GD.Print("Spawning visual");
+			Node3D item = SpawnItemVisual();
+			_visualItems[0] = item;
+		}
+		
+		
+		
+	}
+
+	private void resetVisualTracker()
+	{
+		for (int i = 0; i < 5; i++)
+		{
+			_shiftedThisTick[i] = false;
+		}
+	}
+
+	public void ticketyTick()
+	{
+		
+		resetVisualTracker();
+		updateDiscretePositions();
+		spawnVisualEntities();
+		
+		
+
+		
+
+		_t = 0;
 	}
 
 	public bool AddItem(int itemId)
 	{
-		if (_itemQueueFIFO.Any())
-		{
-			if (_itemQueueFIFO[0].itemVisual.Position.X < _conveyorSpacing)
-			{
-				return false;
-			}
-		}
-		
-		if (_itemQueueFIFO.Count >= GetMaxCapacity())
-		{
-			GD.Print("Max cap: " + GetMaxCapacity());
-			return false;
-		}
+		if(_itemContainers[0] != 0) return false;
+		_itemContainers[0] = itemId;
+		spawnVisualEntities();
 
-		Node3D itemVisual = SpawnItemVisual();
-		if (itemVisual == null)
-		{
-			GD.PrintErr("Failed to spawn item visual");
-		}
-		
-		_itemQueueFIFO.Insert(0, (itemId, itemVisual));
-		
 		return true;
 	}
+	
 
 	public bool RemoveItem()
 	{
-		if (_itemQueueFIFO.Count == 0)
+		if (_itemContainers[^1] != 0)
 		{
-			return false;
+			_itemContainers[^1] = 0;
+			return true;	
 		}
-		
-		(int itemID, Node3D itemVisual) = _itemQueueFIFO[_itemQueueFIFO.Count - 1];
-		itemVisual?.QueueFree();
-		
-		_itemQueueFIFO.RemoveAt(_itemQueueFIFO.Count - 1);
-		return true;
+
+		return false;
+	}
+
+	public bool IsFull()
+	{
+		return _itemContainers[0] != 0;
 	}
 
 	public bool HasItem(int itemId)
@@ -182,24 +240,6 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 	public IEnumerable<int> GetItems()
 	{
 		throw new NotImplementedException();
-	}
-
-	// Rename? Returns the item last (or only) item on the belt's distance from the start of the belt. Returns null if no items exist.
-	public float? GetLastItemDistanceFromBeginningOfConveyor()
-	{
-		if (_itemQueueFIFO.Count == 0)
-		{
-			return null;
-		}
-		
-		return _itemQueueFIFO[0].itemVisual.Position.DistanceTo(_startPosition);
-		
-	}
-
-
-	private int GetMaxCapacity()
-	{
-		return Mathf.RoundToInt(1f / _conveyorSpacing) + 1;
 	}
 
 	Node3D SpawnItemVisual()

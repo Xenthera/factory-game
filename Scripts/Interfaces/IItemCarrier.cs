@@ -8,4 +8,6 @@ public interface IItemCarrier
     bool RemoveItem();
     bool HasItem(int itemId);
     IEnumerable<int> GetItems();
+    
+    
 }

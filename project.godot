@@ -15,6 +15,10 @@ run/main_scene="res://Main.tscn"
 config/features=PackedStringArray("4.3", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
+[debug_draw_3d]
+
+settings/3d/volumetric_defaults/thickness=0.025
+
 [dotnet]
 
 project/assembly_name="Factory Game"
@@ -74,4 +78,8 @@ remove={
 
 [rendering]
 
-anti_aliasing/quality/msaa_3d=1
+environment/ssao/quality=3
+environment/screen_space_reflection/roughness_quality=3
+global_illumination/sdfgi/probe_ray_count=0
+anti_aliasing/quality/use_taa=true
+anti_aliasing/quality/use_debanding=true
