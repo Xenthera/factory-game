@@ -1,0 +1,86 @@
+[gd_scene load_steps=12 format=3 uid="uid://b76ecb6348xl8"]
+
+[ext_resource type="Script" path="res://Scripts/ConveyorBeltRight.cs" id="1_tprnn"]
+[ext_resource type="Material" uid="uid://dqt1awdjqhwb0" path="res://Materials/ConveyorMaterial.tres" id="3_7uj8i"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_1f02d"]
+material = ExtResource("3_7uj8i")
+size = Vector3(0.75, 0.1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_p6ncy"]
+emission_enabled = true
+emission = Color(1, 0, 0, 1)
+emission_energy_multiplier = 2.61
+
+[sub_resource type="BoxMesh" id="BoxMesh_1x7rm"]
+material = SubResource("StandardMaterial3D_p6ncy")
+size = Vector3(0.25, 0.1, 0.1)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_g5thq"]
+load_path = "res://.godot/imported/texture_10.png-f6a2bfd11abff348137ff5f78f24e732.s3tc.ctex"
+
+[sub_resource type="Gradient" id="Gradient_ck3pn"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_5jsc5"]
+noise_type = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_f08lh"]
+seamless = true
+as_normal_map = true
+bump_strength = 16.9
+color_ramp = SubResource("Gradient_ck3pn")
+noise = SubResource("FastNoiseLite_5jsc5")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_13m31"]
+albedo_texture = SubResource("CompressedTexture2D_g5thq")
+metallic_specular = 0.0
+normal_texture = SubResource("NoiseTexture2D_f08lh")
+clearcoat_roughness = 0.0
+ao_light_affect = 0.47
+uv1_triplanar = true
+uv1_world_triplanar = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_t6gdx"]
+material = SubResource("StandardMaterial3D_13m31")
+size = Vector3(0.25, 0.1, 0.5)
+
+[node name="ConveyorBeltRight" type="Node3D"]
+script = ExtResource("1_tprnn")
+
+[node name="ConveyorMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.375, 0.05, 0)
+mesh = SubResource("BoxMesh_1f02d")
+
+[node name="Arrow" type="MeshInstance3D" parent="ConveyorMesh"]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 0.193445, 0.000943627, -0.0333179)
+mesh = SubResource("BoxMesh_1x7rm")
+skeleton = NodePath("../..")
+
+[node name="Arrow2" type="MeshInstance3D" parent="ConveyorMesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.118564, 0.00213867, 0.0415443)
+mesh = SubResource("BoxMesh_1x7rm")
+skeleton = NodePath("../..")
+
+[node name="Arrow3" type="MeshInstance3D" parent="ConveyorMesh"]
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -0.223601, 0.000943627, -0.0488288)
+mesh = SubResource("BoxMesh_1x7rm")
+skeleton = NodePath("../..")
+
+[node name="Arrow4" type="MeshInstance3D" parent="ConveyorMesh"]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, -0.223614, 0.00213867, 0.0570552)
+mesh = SubResource("BoxMesh_1x7rm")
+skeleton = NodePath("../..")
+
+[node name="ConveyorMesh2" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0.5, 0.05, 0.375)
+mesh = SubResource("BoxMesh_t6gdx")
+
+[node name="Arrow5" type="MeshInstance3D" parent="ConveyorMesh2"]
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, -0.022541, 0.000943627, -0.0546053)
+mesh = SubResource("BoxMesh_1x7rm")
+skeleton = NodePath("../..")
+
+[node name="Arrow6" type="MeshInstance3D" parent="ConveyorMesh2"]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, -0.022554, 0.00213867, 0.0512787)
+mesh = SubResource("BoxMesh_1x7rm")
+skeleton = NodePath("../..")

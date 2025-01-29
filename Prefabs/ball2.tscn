@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://8liob1k8rdt0"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cf25g"]
+albedo_color = Color(1, 0, 0, 1)
+metallic_specular = 0.0
+clearcoat_roughness = 1.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_m1iws"]
+material = SubResource("StandardMaterial3D_cf25g")
+radius = 1.5
+height = 3.0
+
+[node name="MeshInstance3D4" type="MeshInstance3D"]
+transform = Transform3D(0.0581463, 0, 0, 0, 0.0581463, 0, 0, 0, 0.0581463, 0, 0.1, 0)
+mesh = SubResource("SphereMesh_m1iws")

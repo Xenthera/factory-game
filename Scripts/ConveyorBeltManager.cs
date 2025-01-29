@@ -7,16 +7,23 @@ namespace FactoryGame.Scripts;
 public partial class ConveyorBeltManager : Node
 {
     
+    public static ConveyorBeltManager Instance;
+    
+    [Export] public PackedScene[] ItemModels;
+    
+    public static int ItemsPerConveyorStraight = 4;
+    public static int ItemsPerConveyorCurved = 4;
+    
     private HashSet<ConveyorBelt> _conveyorBelts = [];
     private ConveyorBelt _currentHead;
     
     private float _timer;
-    private HashSet<ConveyorBelt> _traversalHistory = new HashSet<ConveyorBelt>();
+    private HashSet<ConveyorBelt> _traversalHistory = [];
 
 
     public override void _Ready()
     {
-
+        Instance = this;
         Node parent = GetParent();
 
         foreach (Node child in parent.GetChildren())
@@ -47,6 +54,8 @@ public partial class ConveyorBeltManager : Node
                 }
             }
         }
+        
+        GD.Print("Current head: " + _currentHead.Name);
 
         _traversalHistory.Clear();
     }
@@ -55,7 +64,7 @@ public partial class ConveyorBeltManager : Node
     {
         _timer += (float)delta;
 
-        if (_timer >= 1f / (60f / 10f))
+        if (_timer >= 1f / (60f / 2f))
         {
             ConveyorBelt currentBelt = _currentHead;
             while (true)
