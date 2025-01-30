@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://c4xo01nkv2lks"]
+[gd_scene load_steps=25 format=3 uid="uid://c4xo01nkv2lks"]
 
 [ext_resource type="Script" path="res://Scripts/CameraController.cs" id="1_o3hk1"]
 [ext_resource type="Shader" path="res://Ground.gdshader" id="1_w5rox"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://dnlwu1pilt648" path="res://Prefabs/conveyor_belt_left.tscn" id="7_wp5vq"]
 [ext_resource type="PackedScene" uid="uid://b76ecb6348xl8" path="res://Prefabs/conveyor_belt_right.tscn" id="9_piwrk"]
 [ext_resource type="PackedScene" uid="uid://8liob1k8rdt0" path="res://Prefabs/ball2.tscn" id="11_l0gmc"]
+[ext_resource type="Script" path="res://Scripts/ItemInhaler.cs" id="12_r3r8t"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_8pqmw"]
 sky_top_color = Color(1, 1, 1, 1)
@@ -31,6 +32,7 @@ ssao_intensity = 4.31
 ssil_enabled = true
 sdfgi_enabled = true
 sdfgi_use_occlusion = true
+glow_enabled = true
 glow_normalized = true
 glow_strength = 0.63
 glow_blend_mode = 0
@@ -39,6 +41,8 @@ fog_light_color = Color(1, 0.904167, 0.75, 1)
 fog_density = 1.0
 fog_depth_curve = 6.49801
 fog_depth_end = 482.0
+volumetric_fog_enabled = true
+volumetric_fog_albedo = Color(1, 0, 0, 1)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_vv2rf"]
 render_priority = 0
@@ -82,6 +86,10 @@ uv1_triplanar = true
 material = SubResource("StandardMaterial3D_7kuea")
 size = Vector3(3, 3, 3)
 
+[sub_resource type="SystemFont" id="SystemFont_3eohf"]
+font_names = PackedStringArray("Fantasy")
+generate_mipmaps = true
+
 [node name="Node3D" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -109,7 +117,6 @@ RotationPoint = NodePath("..")
 
 [node name="ConveyorBelt" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
 OtherConveyorBelt = NodePath("../ConveyorBelt2")
-IsLead = false
 
 [node name="ConveyorBelt2" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
@@ -219,7 +226,6 @@ IsLead = false
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1, 0, 7)
 OtherConveyorBelt = NodePath("../ConveyorBeltRight4")
 IsLead = false
-IsEnd = true
 
 [node name="ConveyorBeltRight4" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("9_piwrk")]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 7)
@@ -228,6 +234,7 @@ OtherConveyorBelt = NodePath("../ConveyorBelt19")
 [node name="ConveyorBelt19" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 6.5)
 OtherConveyorBelt = NodePath("../ConveyorBelt20")
+IsLead = false
 
 [node name="ConveyorBelt20" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 5.5)
@@ -251,26 +258,30 @@ IsLead = false
 
 [node name="ConveyorBelt24" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 1.5)
-OtherConveyorBelt = NodePath("../ConveyorRight")
+OtherConveyorBelt = NodePath("../ConveyorBelt25")
 IsLead = false
 IsEnd = true
 
-[node name="ConveyorRight" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("9_piwrk")]
+[node name="ConveyorBelt25" parent="." node_paths=PackedStringArray("OtherConveyorBelt", "AlternateItemCarrier") instance=ExtResource("5_jbv5o")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 0.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt")
+OtherConveyorBelt = NodePath("")
+AlternateItemCarrier = NodePath("../ItemInhaler")
+IsLead = false
+IsEnd = true
 
 [node name="ConveyorBeltManager" type="Node" parent="."]
 script = ExtResource("6_168p5")
 ItemModels = Array[PackedScene]([ExtResource("7_e181y"), ExtResource("6_55d2b"), ExtResource("11_l0gmc")])
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.91531, 2, -2.43626)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.52373, 2, -2.43626)
 mesh = SubResource("SphereMesh_xaud7")
 
 [node name="MeshInstance3D4" parent="." instance=ExtResource("6_55d2b")]
+transform = Transform3D(0.426813, 0, 0, 0, 0.426813, 0, 0, 0, 0.426813, -5.3145, 0.1, -1.35955)
 
 [node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.472305, 0, 0, 0, 0.472305, 0, 0, 0, 0.472305, -2.65046, 2, 0.11424)
+transform = Transform3D(0.472305, 0, 0, 0, 0.472305, 0, 0, 0, 0.472305, -7.25888, 2, 0.11424)
 mesh = SubResource("SphereMesh_lu1ci")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
@@ -297,6 +308,20 @@ mesh = SubResource("BoxMesh_xn220")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, -0.5, 13)
 mesh = SubResource("BoxMesh_xn220")
 
+[node name="ItemInhaler" type="MeshInstance3D" parent="." node_paths=PackedStringArray("countLabel")]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -0.509977, 0.468951, -1.00678)
+mesh = SubResource("BoxMesh_xn220")
+script = ExtResource("12_r3r8t")
+countLabel = NodePath("Label3D")
+
+[node name="Label3D" type="Label3D" parent="ItemInhaler"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4166, 0)
+modulate = Color(1, 0.835938, 0.625, 1)
+text = "Test"
+font = SubResource("SystemFont_3eohf")
+font_size = 391
+vertical_alignment = 2
+
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
 transform = Transform3D(-0.713018, 0.502369, -0.489112, 0, 0.69759, 0.716497, 0.701146, 0.510875, -0.497394, -0.908061, 4.25437, -0.923437)
 light_color = Color(1, 0.848511, 0.714844, 1)
@@ -314,19 +339,3 @@ light_indirect_energy = 1.988
 shadow_enabled = true
 spot_range = 103.415
 spot_angle = 68.25
-
-[node name="Item" parent="." instance=ExtResource("7_e181y")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, 0.5)
-visible = false
-
-[node name="Item2" parent="." instance=ExtResource("7_e181y")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, 0.25)
-visible = false
-
-[node name="Item3" parent="." instance=ExtResource("7_e181y")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, 0)
-visible = false
-
-[node name="Item4" parent="." instance=ExtResource("7_e181y")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, 0)
-visible = false

@@ -13,12 +13,16 @@ public partial class ConveyorBeltManager : Node
     
     public static int ItemsPerConveyorStraight = 4;
     public static int ItemsPerConveyorCurved = 4;
+    public static float conveyorSpeed = 4f;
+    
     
     private HashSet<ConveyorBelt> _conveyorBelts = [];
     private ConveyorBelt _currentHead;
     
     private float _timer;
     private HashSet<ConveyorBelt> _traversalHistory = [];
+
+    private int currentTick = 30;
 
 
     public override void _Ready()
@@ -46,10 +50,12 @@ public partial class ConveyorBeltManager : Node
                     currentBelt.OtherConveyorBelt.PreviousConveyorBelt = currentBelt;
                     _traversalHistory.Add(currentBelt);
                     currentBelt = currentBelt.OtherConveyorBelt;
+                    currentBelt.IsHead = false;
                 }
                 else
                 {
                     _currentHead = currentBelt;
+                    currentBelt.IsHead = true;
                     break;
                 }
             }
@@ -60,34 +66,46 @@ public partial class ConveyorBeltManager : Node
         _traversalHistory.Clear();
     }
 
-    public override void _Process(double delta)
+    public int GetCurrentTickTime()
+    {
+        return currentTick;
+    }
+
+    public override void _PhysicsProcess(double delta)
     {
         _timer += (float)delta;
 
-        if (_timer >= 1f / (60f / 2f))
+        if (_timer >= 1f / 60f)
         {
-            ConveyorBelt currentBelt = _currentHead;
-            while (true)
+            currentTick++;
+
+            if (currentTick % conveyorSpeed == 0)
             {
-                if (currentBelt == null) break;
-                
-                currentBelt.ticketyTick();
-        
-                if (currentBelt.PreviousConveyorBelt != null)
+                ConveyorBelt currentBelt = _currentHead;
+                while (true)
                 {
-                    if (currentBelt.PreviousConveyorBelt == _currentHead)
+                    if (currentBelt == null) break;
+
+                    currentBelt.ticketyTick();
+
+                    if (currentBelt.PreviousConveyorBelt != null)
+                    {
+                        if (currentBelt.PreviousConveyorBelt == _currentHead)
+                        {
+                            break;
+                        }
+
+                        currentBelt = currentBelt.PreviousConveyorBelt;
+                    }
+                    else
                     {
                         break;
                     }
-                    currentBelt = currentBelt.PreviousConveyorBelt;
+
                 }
-                else
-                {
-                    break;
-                }
-                
             }
-            
+
+            if(currentTick > 60) currentTick = 0;
             _timer = 0f;
         }   
     }

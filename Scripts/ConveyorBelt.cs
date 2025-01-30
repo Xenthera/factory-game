@@ -26,17 +26,21 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 	[Export] public ConveyorBelt OtherConveyorBelt;
 	[Export] public ConveyorBelt PreviousConveyorBelt;
 	
+	[Export] public Node3D AlternateItemCarrier;
+	
 	//will be removed when grid manager passes IItemCarriers
 	protected IItemCarrier _nextCarrier;
 
-	protected ConveyorBelt _previousConveyor;
 	//temp remove
 	[Export] private bool IsLead = false;
 	[Export] private bool IsEnd = false;
-	
 
+	public bool IsHead;
+	public int ItemBuffer;
+	
 	protected int[] _itemContainers;
 	protected Vector3[] _itemPositions;
+	protected Vector3 _itemExitPosition;
 	protected ConveyorItem[] _visualItems;
 
 	protected float _yOffset = 0.1f;
@@ -51,18 +55,30 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		_nextCarrier = OtherConveyorBelt as IItemCarrier;
+		if (OtherConveyorBelt != null)
+		{
+			_nextCarrier = OtherConveyorBelt as IItemCarrier;
+		}
+		else if (AlternateItemCarrier != null)
+		{
+			_nextCarrier = AlternateItemCarrier as IItemCarrier;
+		}
 
 		_itemContainers = new int[ConveyorBeltManager.ItemsPerConveyorStraight];
 		_itemPositions = new Vector3[ConveyorBeltManager.ItemsPerConveyorStraight];
 		_visualItems = new ConveyorItem[ConveyorBeltManager.ItemsPerConveyorStraight];
 		_shifted = new bool[ConveyorBeltManager.ItemsPerConveyorStraight];
+		
 
 		
 		for (int i = 0; i < _itemPositions.Length; i++)
 		{
 			_itemPositions[i] = new Vector3(i * (1f / _itemPositions.Length), _yOffset, 0f);
 		}
+
+		_itemExitPosition = _itemPositions[^1];
+		_itemExitPosition += new Vector3(1f/_itemPositions.Length, 0f, 0f);
+
 		
 		
 		_itemColors.Add(1, Colors.Lavender);
@@ -80,17 +96,15 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		Color c = Colors.Cyan;
-
 		for (int i = 0; i < _itemPositions.Length; i++)
 		{
 			if (_itemContainers[i] != 0)
 			{
-	//			Vector3 local = _itemPositions[i] + new Vector3(0f, 0.1f, 0);
-	//			DebugDraw3D.DrawBox(GlobalTransform.Origin + GlobalTransform.Basis * local, GlobalBasis.GetRotationQuaternion(), Vector3.One * 0.3f, _itemColors[_itemContainers[i]], true);
+				// Vector3 local = _itemPositions[i] + new Vector3(0f, 0.1f, 0);
+				// DebugDraw3D.DrawBox(GlobalTransform.Origin + GlobalTransform.Basis * local, GlobalBasis.GetRotationQuaternion(), Vector3.One * 0.3f, _itemColors[_itemContainers[i]], true);
 			}
-			Vector3 shiftedDebugPos = _itemPositions[i] + new Vector3(0f, 0.5f, 0);
-			DebugDraw3D.DrawSphere(GlobalTransform.Origin + GlobalTransform.Basis * shiftedDebugPos, 0.05f,  _shifted[i] ? Colors.Aqua : Colors.Red);
+			//Vector3 shiftedDebugPos = _itemPositions[i] + new Vector3(0f, 0.5f, 0);
+			//DebugDraw3D.DrawSphere(GlobalTransform.Origin + GlobalTransform.Basis * shiftedDebugPos, 0.05f,  _shifted[i] ? Colors.Aqua : Colors.Red);
 			
 		}
 
@@ -107,6 +121,27 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 			}
 		}
 
+		for (int i = _itemContainers.Length - 1; i >= 0; i--)
+		//for (int i = 0; i < _itemContainers.Length; i++)
+		{
+			if (_shifted[i])
+			{
+				if (i < _itemPositions.Length - 1)
+				{
+					if (_visualItems[i] != null)
+						_visualItems[i].visualItem.Position = _itemPositions[i].Lerp(_itemPositions[i + 1],
+							ConveyorBeltManager.Instance.GetCurrentTickTime() % ConveyorBeltManager.conveyorSpeed /
+							ConveyorBeltManager.conveyorSpeed);
+				}
+				else
+				{
+					if (_visualItems[i] != null)
+						_visualItems[i].visualItem.Position = _itemPositions[i].Lerp(_itemExitPosition,
+							ConveyorBeltManager.Instance.GetCurrentTickTime() % ConveyorBeltManager.conveyorSpeed /
+							ConveyorBeltManager.conveyorSpeed);
+				}
+			}
+		}
 	}
 
 	protected virtual void updateDiscretePositions()
@@ -116,19 +151,22 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 			if (i == _itemContainers.Length - 1) //last position on conveyor
 			{
 				if (_itemContainers[i] == 0 || _nextCarrier == null) continue;
-				if (_nextCarrier.AddItem(_itemContainers[i]))
+				
+				if(_nextCarrier.AddItem(_itemContainers[i]))
 				{
+					_visualItems[i]?.Destroy();
+					_visualItems[i] = null;
 					_itemContainers[i] = 0;
-					_shifted[i] = true;
 				}
 			}
 			else
 			{
 				if (_itemContainers[i] != 0 && _itemContainers[i + 1] == 0)
 				{
+
 					_itemContainers[i + 1] = _itemContainers[i];
 					_itemContainers[i] = 0;
-					_shifted[i] = true;
+					_shifted[i + 1] = true;
 				}
 			}
 		}
@@ -141,7 +179,6 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 			Node3D item = SpawnItemVisual(itemId);
 			_visualItems[0] = new ConveyorItem(item);
 		}
-		
 	}
 
 	public void ticketyTick()
@@ -152,10 +189,7 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 		}
 
 		updateDiscretePositions();
-		
 		shiftVisualItems();
-		 
-
 	}
 
 	protected virtual void shiftVisualItems()
@@ -163,24 +197,12 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 		for (var i = _visualItems.Length - 1; i >= 0; i--)
 		{			   
 
-			if (i == _visualItems.Length - 1)
-			{
-				if (_visualItems[i] != null && _shifted[i])
-				{
-					_visualItems[i]?.Destroy();
-					_visualItems[i] = null;
-				}
-			}
-			else
-			{
 				if (_shifted[i])
 				{
-					_visualItems[i + 1] = _visualItems[i];
-					_visualItems[i + 1].visualItem.Position = _itemPositions[i + 1];
-					_visualItems[i] = null;
+					_visualItems[i] = _visualItems[i - 1];
+					//_visualItems[i + 1].visualItem.Position = _itemPositions[i + 1];
+					_visualItems[i - 1] = null;
 				}
-			}
-		 	
 		}
 	}
 
@@ -188,6 +210,7 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 	{
 		if(_itemContainers[0] != 0) return false;
 		_itemContainers[0] = itemId;
+		_shifted[0] = true;
 		spawnVisualEntities(itemId);
 
 		return true;
@@ -227,8 +250,6 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 
 	Node3D SpawnItemVisual(int itemId)
 	{
-		GD.Print(itemId);
-
 		
 		var instance = ConveyorBeltManager.Instance.ItemModels[itemId - 1].Instantiate<Node3D>();
 		AddChild(instance);
