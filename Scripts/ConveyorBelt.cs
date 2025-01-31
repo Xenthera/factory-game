@@ -110,8 +110,16 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 
 		if (Input.IsActionPressed("add") && IsLead)
 		{
-			var randomIndex = random.Next(ConveyorBeltManager.Instance.ItemModels.Length);
-			AddItem(randomIndex + 1);
+			// var randomIndex = random.Next(ConveyorBeltManager.Instance.ItemModels.Length);
+			// if (randomIndex == 0) randomIndex++;
+			AddItem(2);
+		}
+		
+		if (Input.IsActionPressed("add_b") && IsLead)
+		{
+			// var randomIndex = random.Next(ConveyorBeltManager.Instance.ItemModels.Length);
+			// if (randomIndex == 0) randomIndex++;
+			AddItem(3);
 		}
 		if (Input.IsActionPressed("remove") && IsEnd)
 		{

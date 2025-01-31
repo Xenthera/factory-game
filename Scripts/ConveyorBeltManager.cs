@@ -13,7 +13,7 @@ public partial class ConveyorBeltManager : Node
     
     public static int ItemsPerConveyorStraight = 4;
     public static int ItemsPerConveyorCurved = 4;
-    public static float conveyorSpeed = 4f;
+    public static float conveyorSpeed = 5f;
     
     
     private HashSet<ConveyorBelt> _conveyorBelts = [];
