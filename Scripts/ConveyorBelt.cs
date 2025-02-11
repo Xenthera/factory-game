@@ -208,7 +208,6 @@ public partial class ConveyorBelt : Node3D, IItemCarrier
 				if (_shifted[i])
 				{
 					_visualItems[i] = _visualItems[i - 1];
-					//_visualItems[i + 1].visualItem.Position = _itemPositions[i + 1];
 					_visualItems[i - 1] = null;
 				}
 		}

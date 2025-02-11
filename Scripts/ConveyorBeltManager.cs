@@ -6,6 +6,12 @@ namespace FactoryGame.Scripts;
 
 public partial class ConveyorBeltManager : Node
 {
+
+    class ConveyorBeltChain
+    {
+        private HashSet<ConveyorBelt> _conveyorBelts = [];
+        private ConveyorBelt _currentHead;
+    }
     
     public static ConveyorBeltManager Instance;
     
@@ -16,11 +22,9 @@ public partial class ConveyorBeltManager : Node
     public static float conveyorSpeed = 5f;
     
     
-    private HashSet<ConveyorBelt> _conveyorBelts = [];
-    private ConveyorBelt _currentHead;
-    
     private float _timer;
     private HashSet<ConveyorBelt> _traversalHistory = [];
+    private List<ConveyorBeltChain> _conveyorBeltChains = new List<ConveyorBeltChain>();
 
     private int currentTick = 30;
 
@@ -30,40 +34,40 @@ public partial class ConveyorBeltManager : Node
         Instance = this;
         Node parent = GetParent();
 
-        foreach (Node child in parent.GetChildren())
-        {
-            if (child is ConveyorBelt)
-            {
-                GD.Print("Adding belt");
+        // foreach (Node child in parent.GetChildren())
+        // {
+        //     if (child is ConveyorBelt)
+        //     {
+        //         GD.Print("Adding belt");
+        //
+        //         _conveyorBelts.Add(child as ConveyorBelt);
+        //     }
+        // }
 
-                _conveyorBelts.Add(child as ConveyorBelt);
-            }
-        }
-
-        ConveyorBelt currentBelt = _conveyorBelts.First();
-        if (currentBelt != null)
-        {
-            while (true)
-            {
-                if(currentBelt.OtherConveyorBelt != null && !_traversalHistory.Contains(currentBelt.OtherConveyorBelt))
-                {
-                    currentBelt.OtherConveyorBelt.PreviousConveyorBelt = currentBelt;
-                    _traversalHistory.Add(currentBelt);
-                    currentBelt = currentBelt.OtherConveyorBelt;
-                    currentBelt.IsHead = false;
-                }
-                else
-                {
-                    _currentHead = currentBelt;
-                    currentBelt.IsHead = true;
-                    break;
-                }
-            }
-        }
+        // ConveyorBelt currentBelt = _conveyorBelts.First();
+        // if (currentBelt != null)
+        // {
+        //     while (true)
+        //     {
+        //         if(currentBelt.OtherConveyorBelt != null && !_traversalHistory.Contains(currentBelt.OtherConveyorBelt))
+        //         {
+        //             currentBelt.OtherConveyorBelt.PreviousConveyorBelt = currentBelt;
+        //             _traversalHistory.Add(currentBelt);
+        //             currentBelt = currentBelt.OtherConveyorBelt;
+        //             currentBelt.IsHead = false;
+        //         }
+        //         else
+        //         {
+        //             _currentHead = currentBelt;
+        //             currentBelt.IsHead = true;
+        //             break;
+        //         }
+        //     }
+        // }
         
-        GD.Print("Current head: " + _currentHead.Name);
-
-        _traversalHistory.Clear();
+        // GD.Print("Current head: " + _currentHead.Name);
+        //
+        // _traversalHistory.Clear();
     }
 
     public int GetCurrentTickTime()
@@ -81,28 +85,28 @@ public partial class ConveyorBeltManager : Node
 
             if (currentTick % conveyorSpeed == 0)
             {
-                ConveyorBelt currentBelt = _currentHead;
-                while (true)
-                {
-                    if (currentBelt == null) break;
-
-                    currentBelt.ticketyTick();
-
-                    if (currentBelt.PreviousConveyorBelt != null)
-                    {
-                        if (currentBelt.PreviousConveyorBelt == _currentHead)
-                        {
-                            break;
-                        }
-
-                        currentBelt = currentBelt.PreviousConveyorBelt;
-                    }
-                    else
-                    {
-                        break;
-                    }
-
-                }
+                // ConveyorBelt currentBelt = _currentHead;
+                // while (true)
+                // {
+                //     if (currentBelt == null) break;
+                //
+                //     currentBelt.ticketyTick();
+                //
+                //     if (currentBelt.PreviousConveyorBelt != null)
+                //     {
+                //         if (currentBelt.PreviousConveyorBelt == _currentHead)
+                //         {
+                //             break;
+                //         }
+                //
+                //         currentBelt = currentBelt.PreviousConveyorBelt;
+                //     }
+                //     else
+                //     {
+                //         break;
+                //     }
+                //
+                // }
             }
 
             if(currentTick > 60) currentTick = 0;

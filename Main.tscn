@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://c4xo01nkv2lks"]
+[gd_scene load_steps=29 format=3 uid="uid://c4xo01nkv2lks"]
 
 [ext_resource type="Script" path="res://Scripts/CameraController.cs" id="1_o3hk1"]
 [ext_resource type="Shader" path="res://Ground.gdshader" id="1_w5rox"]
@@ -12,6 +12,9 @@
 [ext_resource type="PackedScene" uid="uid://b76ecb6348xl8" path="res://Prefabs/conveyor_belt_right.tscn" id="9_piwrk"]
 [ext_resource type="PackedScene" uid="uid://8liob1k8rdt0" path="res://Prefabs/ball2.tscn" id="11_l0gmc"]
 [ext_resource type="Script" path="res://Scripts/ItemInhaler.cs" id="12_r3r8t"]
+[ext_resource type="Script" path="res://Scripts/GridPlacerTool.cs" id="13_7mblx"]
+[ext_resource type="Script" path="res://Scripts/WorldGrid.cs" id="14_6kjdb"]
+[ext_resource type="Texture2D" uid="uid://ciktxybsycta0" path="res://texture_06.png" id="14_h3vil"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_8pqmw"]
 sky_top_color = Color(1, 1, 1, 1)
@@ -30,7 +33,6 @@ ssao_enabled = true
 ssao_radius = 0.12
 ssao_intensity = 4.31
 ssil_enabled = true
-sdfgi_enabled = true
 sdfgi_use_occlusion = true
 glow_enabled = true
 glow_normalized = true
@@ -41,20 +43,19 @@ fog_light_color = Color(1, 0.904167, 0.75, 1)
 fog_density = 1.0
 fog_depth_curve = 6.49801
 fog_depth_end = 482.0
-volumetric_fog_enabled = true
 volumetric_fog_albedo = Color(1, 0, 0, 1)
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_vv2rf"]
-render_priority = 0
-shader = ExtResource("1_w5rox")
-shader_parameter/grid_scale = Vector2(500, 500)
-shader_parameter/camera_position = Vector3(0, 0, 0)
-shader_parameter/roughness = 1.3
-shader_parameter/tex = ExtResource("2_ckmk3")
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7kuea"]
+albedo_texture = ExtResource("2_ckmk3")
+uv1_triplanar = true
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_ja8a7"]
-material = SubResource("ShaderMaterial_vv2rf")
-size = Vector2(500, 500)
+[sub_resource type="BoxMesh" id="BoxMesh_xn220"]
+material = SubResource("StandardMaterial3D_7kuea")
+size = Vector3(3, 3, 3)
+
+[sub_resource type="SystemFont" id="SystemFont_3eohf"]
+font_names = PackedStringArray("Monospace")
+generate_mipmaps = true
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2yqva"]
 albedo_color = Color(0.710938, 1, 0, 1)
@@ -78,17 +79,19 @@ material = SubResource("StandardMaterial3D_voeu4")
 radius = 1.5
 height = 3.0
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7kuea"]
-albedo_texture = ExtResource("2_ckmk3")
-uv1_triplanar = true
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vv2rf"]
+render_priority = 0
+shader = ExtResource("1_w5rox")
+shader_parameter/grid_scale = Vector2(500, 500)
+shader_parameter/camera_position = Vector3(0, 0, 0)
+shader_parameter/roughness = 1.3
+shader_parameter/tex = ExtResource("14_h3vil")
 
-[sub_resource type="BoxMesh" id="BoxMesh_xn220"]
-material = SubResource("StandardMaterial3D_7kuea")
-size = Vector3(3, 3, 3)
+[sub_resource type="PlaneMesh" id="PlaneMesh_ja8a7"]
+material = SubResource("ShaderMaterial_vv2rf")
+size = Vector2(500, 500)
 
-[sub_resource type="SystemFont" id="SystemFont_3eohf"]
-font_names = PackedStringArray("Monospace")
-generate_mipmaps = true
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_7fh5q"]
 
 [node name="Node3D" type="Node3D"]
 
@@ -97,14 +100,11 @@ environment = SubResource("Environment_mnhii")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.866025, -0.402447, 0.296709, 0, 0.593419, 0.804894, -0.5, 0.697058, -0.513916, 0.000463009, 0.00529313, 0.000267267)
-visible = false
+light_color = Color(0.249176, 0.308564, 0.449219, 1)
+light_energy = 0.111
 shadow_enabled = true
-
-[node name="Ground" type="MeshInstance3D" parent="." node_paths=PackedStringArray("Camera")]
-transform = Transform3D(1, 0, -1.19209e-07, 0, 1, 0, -1.19209e-07, 0, 1, 0.00346245, -3.57628e-07, 8.46386e-05)
-mesh = SubResource("PlaneMesh_ja8a7")
-script = ExtResource("3_u6huq")
-Camera = NodePath("../CameraRotationCenter/Camera3D")
+shadow_blur = 1.77
+directional_shadow_mode = 0
 
 [node name="CameraRotationCenter" type="Node3D" parent="."]
 
@@ -115,239 +115,15 @@ size = 5.0
 script = ExtResource("1_o3hk1")
 RotationPoint = NodePath("..")
 
-[node name="ConveyorBeltRight5" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("9_piwrk")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
-OtherConveyorBelt = NodePath("../ConveyorBeltLeft3")
-IsEnd = true
-
-[node name="ConveyorBeltLeft3" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("7_wp5vq")]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0.5, 0, -0.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt2")
-IsEnd = true
-
-[node name="ConveyorBelt2" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
-OtherConveyorBelt = NodePath("../ConveyorBelt3")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt3" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 0)
-OtherConveyorBelt = NodePath("../ConveyorBelt4")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt4" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 0)
-OtherConveyorBelt = NodePath("../ConveyorBelt5")
-IsEnd = true
-
-[node name="ConveyorBelt5" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
-OtherConveyorBelt = NodePath("../ConveyorBelt6")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt6" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0)
-OtherConveyorBelt = NodePath("../ConveyorRight2")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorRight2" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("9_piwrk")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 0)
-OtherConveyorBelt = NodePath("../ConveyorBelt7")
-IsEnd = true
-
-[node name="ConveyorBelt7" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 6.5, 0, 0.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt8")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt8" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 6.5, 0, 1.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt9")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt9" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 6.5, 0, 2.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt10")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt10" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 6.5, 0, 3.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt11")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt11" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 6.5, 0, 4.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt12")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt12" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 6.5, 0, 5.5)
-OtherConveyorBelt = NodePath("../ConveyorBeltLeft")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBeltLeft" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("7_wp5vq")]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 6.5, 0, 6.5)
-OtherConveyorBelt = NodePath("../ConveyorBeltRight")
-IsEnd = true
-
-[node name="ConveyorBeltRight" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("9_piwrk")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 0, 7)
-OtherConveyorBelt = NodePath("../ConveyorBeltRight2")
-IsEnd = true
-
-[node name="ConveyorBeltRight2" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("9_piwrk")]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 7.5, 0, 7.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt13")
-IsEnd = true
-
-[node name="ConveyorBelt13" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 7, 0, 8)
-OtherConveyorBelt = NodePath("../ConveyorBeltRight3")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBeltRight3" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("9_piwrk")]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 6, 0, 8)
-OtherConveyorBelt = NodePath("../ConveyorBeltLeft2")
-IsEnd = true
-
-[node name="ConveyorBeltLeft2" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("7_wp5vq")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 5.5, 0, 7.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt14")
-IsEnd = true
-
-[node name="ConveyorBelt14" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 5, 0, 7)
-OtherConveyorBelt = NodePath("../ConveyorBelt15")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt15" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 4, 0, 7)
-OtherConveyorBelt = NodePath("../ConveyorBelt16")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt16" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 3, 0, 7)
-OtherConveyorBelt = NodePath("../ConveyorBelt17")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt17" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 2, 0, 7)
-OtherConveyorBelt = NodePath("../ConveyorBelt18")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt18" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1, 0, 7)
-OtherConveyorBelt = NodePath("../ConveyorBeltRight4")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBeltRight4" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("9_piwrk")]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 7)
-OtherConveyorBelt = NodePath("../ConveyorBelt19")
-IsEnd = true
-
-[node name="ConveyorBelt19" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 6.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt20")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt20" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 5.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt21")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt21" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 4.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt22")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt22" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 3.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt23")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt23" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 2.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt24")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt24" parent="." node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 1.5)
-OtherConveyorBelt = NodePath("../ConveyorBelt25")
-IsLead = false
-IsEnd = true
-
-[node name="ConveyorBelt25" parent="." node_paths=PackedStringArray("AlternateItemCarrier") instance=ExtResource("5_jbv5o")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.5, 0, 0.5)
-AlternateItemCarrier = NodePath("../ItemInhaler")
-IsLead = false
-IsEnd = true
-
 [node name="ConveyorBeltManager" type="Node" parent="."]
 script = ExtResource("6_168p5")
 ItemModels = Array[PackedScene]([ExtResource("7_e181y"), ExtResource("6_55d2b"), ExtResource("11_l0gmc")])
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.52373, 2, -2.43626)
-mesh = SubResource("SphereMesh_xaud7")
-
-[node name="MeshInstance3D4" parent="." instance=ExtResource("6_55d2b")]
-transform = Transform3D(0.426813, 0, 0, 0, 0.426813, 0, 0, 0, 0.426813, -5.3145, 0.1, -1.35955)
-
-[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
-transform = Transform3D(0.472305, 0, 0, 0, 0.472305, 0, 0, 0, 0.472305, -7.25888, 2, 0.11424)
-mesh = SubResource("SphereMesh_lu1ci")
-
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.5, 9)
-mesh = SubResource("BoxMesh_xn220")
-
-[node name="MeshInstance3D5" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.5, 9)
-mesh = SubResource("BoxMesh_xn220")
-
-[node name="MeshInstance3D6" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, -0.5, 9)
-mesh = SubResource("BoxMesh_xn220")
-
-[node name="MeshInstance3D7" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.5, 13)
-mesh = SubResource("BoxMesh_xn220")
-
-[node name="MeshInstance3D8" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.5, 13)
-mesh = SubResource("BoxMesh_xn220")
-
-[node name="MeshInstance3D9" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, -0.5, 13)
-mesh = SubResource("BoxMesh_xn220")
-
-[node name="ItemInhaler" type="MeshInstance3D" parent="." node_paths=PackedStringArray("countLabel", "output")]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -0.509977, 0.468951, -1.00678)
+[node name="ItemInhaler" type="MeshInstance3D" parent="." node_paths=PackedStringArray("countLabel")]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -0.509977, 0.468951, -0.50678)
 mesh = SubResource("BoxMesh_xn220")
 script = ExtResource("12_r3r8t")
 countLabel = NodePath("Label3D")
-output = NodePath("../ConveyorBeltRight5")
 
 [node name="Label3D" type="Label3D" parent="ItemInhaler"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4166, 0)
@@ -374,3 +150,115 @@ light_indirect_energy = 1.988
 shadow_enabled = true
 spot_range = 103.415
 spot_angle = 68.25
+
+[node name="Conveyors[test]" type="Node3D" parent="."]
+
+[node name="ConveyorBeltRight5" parent="Conveyors[test]" node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("9_piwrk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0, -0.5)
+OtherConveyorBelt = NodePath("../ConveyorBeltLeft3")
+IsEnd = true
+
+[node name="ConveyorBeltLeft3" parent="Conveyors[test]" node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("7_wp5vq")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0)
+OtherConveyorBelt = NodePath("../ConveyorBelt2")
+IsEnd = true
+
+[node name="ConveyorBelt2" parent="Conveyors[test]" node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0, 0.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt3")
+IsLead = false
+IsEnd = true
+
+[node name="ConveyorBelt3" parent="Conveyors[test]" node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0, 0.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt4")
+IsLead = false
+IsEnd = true
+
+[node name="ConveyorBelt4" parent="Conveyors[test]" node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0, 0.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt5")
+IsEnd = true
+
+[node name="ConveyorBelt5" parent="Conveyors[test]" node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0, 0.5)
+OtherConveyorBelt = NodePath("../ConveyorBelt6")
+IsLead = false
+IsEnd = true
+
+[node name="ConveyorBelt6" parent="Conveyors[test]" node_paths=PackedStringArray("OtherConveyorBelt") instance=ExtResource("5_jbv5o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.5, 0, 0.5)
+OtherConveyorBelt = NodePath("../ConveyorRight2")
+IsLead = false
+IsEnd = true
+
+[node name="ConveyorRight2" parent="Conveyors[test]" instance=ExtResource("9_piwrk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 0, 0.5)
+IsEnd = true
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.52373, 2, -2.43626)
+mesh = SubResource("SphereMesh_xaud7")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D4" parent="Environment" instance=ExtResource("6_55d2b")]
+transform = Transform3D(0.426813, 0, 0, 0, 0.426813, 0, 0, 0, 0.426813, -5.3145, 0.1, -1.35955)
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(0.472305, 0, 0, 0, 0.472305, 0, 0, 0, 0.472305, -7.25888, 2, 0.11424)
+mesh = SubResource("SphereMesh_lu1ci")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.5, 9)
+mesh = SubResource("BoxMesh_xn220")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.5, 9)
+mesh = SubResource("BoxMesh_xn220")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, -0.5, 9)
+mesh = SubResource("BoxMesh_xn220")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.5, 13)
+mesh = SubResource("BoxMesh_xn220")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D8" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.5, 13)
+mesh = SubResource("BoxMesh_xn220")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D9" type="MeshInstance3D" parent="Environment"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, -0.5, 13)
+mesh = SubResource("BoxMesh_xn220")
+skeleton = NodePath("../..")
+
+[node name="GridPlacementTool" type="Node3D" parent="." node_paths=PackedStringArray("_worldGrid")]
+script = ExtResource("13_7mblx")
+_worldGrid = NodePath("../WorldGrid")
+_ghostItem = ExtResource("5_jbv5o")
+
+[node name="WorldGrid" type="Node3D" parent="."]
+script = ExtResource("14_6kjdb")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="Ground" type="MeshInstance3D" parent="StaticBody3D" node_paths=PackedStringArray("Camera")]
+transform = Transform3D(1, 0, -1.19209e-07, 0, 1, 0, -1.19209e-07, 0, 1, 0.00346245, -3.57628e-07, 8.46386e-05)
+mesh = SubResource("PlaneMesh_ja8a7")
+skeleton = NodePath("../..")
+script = ExtResource("3_u6huq")
+Camera = NodePath("../../CameraRotationCenter/Camera3D")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, -1.19209e-07, 0, 1, 0, -1.19209e-07, 0, 1, 0.00346245, -3.57628e-07, 8.46386e-05)
+shape = SubResource("WorldBoundaryShape3D_7fh5q")
